@@ -24,5 +24,5 @@ app.use("/api/leaderboard", require("./routes/leaderboardRoutes"));
 
 
 
-const PORT = process.env.PORT ;
+const PORT = process.env.PORT || "https://quiz-backend-1bjx.onrender.com" ;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
