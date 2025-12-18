@@ -8,7 +8,8 @@ const Result = require("../models/Result");
 const sendEmail = require("../utils/sendEmail");
 const User = require("../models/User");
 const Quiz = require("../models/Quiz");
-
+const mongoose = require("mongoose");
+const { toastError } = require("../../online-quiz-frontend/src/utils/toast");
 const router = express.Router();
 
 router.get("/test", (req, res) => {
@@ -19,8 +20,10 @@ router.get("/test", (req, res) => {
 // CHECK IF USER ALREADY ATTEMPTED
 router.get("/:quizId/check", auth, async (req, res) => {
   try {
+      const quizId = new mongoose.Types.ObjectId(req.params.quizId);
+
     const attempt = await Result.findOne({
-      quizId: req.params.quizId,
+      quizId,
       userId: req.user._id
     });
 
@@ -35,7 +38,7 @@ router.get("/:quizId/check", auth, async (req, res) => {
 router.post("/:quizId/submit", auth, async (req, res) => {
   try {
     const { answers } = req.body;
-    const quizId = req.params.quizId;
+    const quizId = new mongoose.Types.ObjectId(req.params.quizId);
 
     const questions = await Question.find({ quizId });
 
@@ -63,7 +66,7 @@ router.post("/:quizId/submit", auth, async (req, res) => {
 
     // ❗ Prevent duplicate result saving
     const exists = await Result.findOne({
-      quizId,
+      quizId: quizId,
       userId: req.user._id,
     });
 
@@ -89,6 +92,7 @@ const user = await User.findById(req.user._id);
 const quiz = await Quiz.findById(quizId);
 
 // SEND RESULT EMAIL
+try{
 await sendEmail(
   user.email,
   `Your Quiz Result for "${quiz.title}"`,
@@ -102,6 +106,9 @@ await sendEmail(
   <p>Thank you for participating!</p>
   `
 );
+} catch(e){
+  toastError("Email Failed:", e.message);
+}
 
 
     res.json({
