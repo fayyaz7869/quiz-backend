@@ -9,7 +9,6 @@ const sendEmail = require("../utils/sendEmail");
 const User = require("../models/User");
 const Quiz = require("../models/Quiz");
 const mongoose = require("mongoose");
-const { toastError } = require("../../online-quiz-frontend/src/utils/toast");
 const router = express.Router();
 
 router.get("/test", (req, res) => {
@@ -107,7 +106,7 @@ await sendEmail(
   `
 );
 } catch(e){
-  toastError("Email Failed:", e.message);
+  console.e("Email Failed:", e.message);
 }
 
 
